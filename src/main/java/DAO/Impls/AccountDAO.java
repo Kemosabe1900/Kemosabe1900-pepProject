@@ -43,6 +43,24 @@ public class AccountDAO implements AccountDAOInterface {
         return null;
     }
 
+    public Account getAccountByUsername(String username) {
+        try (Connection connection = ConnectionUtil.getConnection()) {
+            String sql = "SELECT * FROM accounts WHERE username = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Account account = new Account(rs.getInt("account_id"),
+                        rs.getString("username"),
+                        rs.getString("password"));
+                return account;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
     // method to inset account into database
     public Account insertAccount(Account account) {
         try (Connection connection = ConnectionUtil.getConnection()) {

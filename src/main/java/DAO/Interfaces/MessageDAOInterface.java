@@ -8,6 +8,8 @@ public interface MessageDAOInterface {
 
     void createMessage(Message message);
 
+    List<Message> getAllMessages();
+
     Message getMessageById(int message_id);
 
     List<Message> getMessagesByAccountId(int posted_by);

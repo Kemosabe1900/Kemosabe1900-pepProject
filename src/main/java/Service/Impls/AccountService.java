@@ -31,4 +31,13 @@ public class AccountService implements AccountServiceInterface {
     public Account deleteAccount(int account_id) {
         return accountDAO.deleteAccount(account_id);
     }
+
+    @Override
+    public Account loginAccount(String username, String password) {
+        Account account = accountDAO.getAccountByUsername(username);
+        if (account != null && account.getPassword().equals(password)) {
+            return account;
+        }
+        return null;
+    }
 }

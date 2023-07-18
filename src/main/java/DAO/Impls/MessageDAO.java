@@ -26,6 +26,25 @@ public class MessageDAO implements MessageDAOInterface {
         }
     }
 
+    public List<Message> getAllMessages() {
+        List<Message> messages = new ArrayList<>();
+        try (Connection connection = ConnectionUtil.getConnection()) {
+            String sql = "SELECT * FROM messages";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Message message = new Message(rs.getInt("message_id"),
+                        rs.getInt("posted_by"),
+                        rs.getString("message_text"),
+                        rs.getLong("time_posted_epoch"));
+                messages.add(message);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return messages;
+    }
+
     public Message getMessageById(int message_id) {
         try (Connection connection = ConnectionUtil.getConnection()) {
             String sql = "SELECT * FROM messages WHERE message_id = ?";

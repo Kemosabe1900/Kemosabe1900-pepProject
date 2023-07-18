@@ -1,18 +1,24 @@
 package Service.Impls;
 
-import DAO.Interfaces.MessageDAOInterface;
+import Service.Interfaces.MessageServiceInterface;
+import DAO.Impls.MessageDAO;
 import Model.Message;
+
 import java.util.List;
 
-public class MessageService {
-    private final MessageDAOInterface messageDAO;
+public class MessageService implements MessageServiceInterface {
+    private final MessageDAO messageDAO;
 
-    public MessageService(MessageDAOInterface messageDAO) {
-        this.messageDAO = messageDAO;
+    public MessageService() {
+        this.messageDAO = new MessageDAO();
     }
 
     public void createMessage(Message message) {
         messageDAO.createMessage(message);
+    }
+
+    public List<Message> getAllMessages() {
+        return messageDAO.getAllMessages();
     }
 
     public Message getMessageById(int message_id) {

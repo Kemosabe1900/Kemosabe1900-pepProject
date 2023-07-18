@@ -8,6 +8,8 @@ public interface AccountDAOInterface {
 
     Account getAccountById(int account_id);
 
+    Account getAccountByUsername(String username);
+
     Account insertAccount(Account account);
 
     void updateAccount(Account account);
