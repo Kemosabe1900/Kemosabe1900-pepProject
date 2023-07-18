@@ -29,11 +29,21 @@ public class MessageService implements MessageServiceInterface {
         return messageDAO.getMessagesByAccountId(posted_by);
     }
 
-    public void updateMessage(Message message, int message_id) {
-        messageDAO.updateMessage(message, message_id);
+
+    public Message updateMessage(int message_id, Message message) {
+        Message exists = messageDAO.getMessageById(message_id);
+        if(exists != null){
+            messageDAO.updateMessage(message_id, message);
+            Message updated = messageDAO.getMessageById(message_id);
+            return updated;
+        }else{
+            return null;
+        }
     }
 
     public boolean deleteMessage(int message_id) {
         return messageDAO.deleteMessage(message_id);
     }
+
+   
 }

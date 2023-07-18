@@ -36,7 +36,8 @@ public class SocialMediaController {
         app.post("/login", this::loginHandler);
         app.post("/message", this::createMessageHandler);
         // app.get("/messages", this::getAllMessagesHandler);
-
+        app.get("/accounts/{account_id}/messages", this:: getMessagesByAccountIdHandler );
+        app.post("messages/{message_id}", this::updateMessageHandler);
         return app;
     }
 
@@ -83,18 +84,66 @@ public class SocialMediaController {
     private void createMessageHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
-        if (message.getMessage_text().isEmpty() && message.getMessage_text().length() > 255) {
-            ctx.status(400);
+
+        if (message.getMessage_text().isEmpty() || message.getMessage_text().length() > 255) {
+            ctx.status(400).result("Message Invalid");
             return;
         }  
+
         Account poster = accountService.getAccountById(message.getPosted_by());
         if(poster == null){
-            ctx.status(400);
+            ctx.status(400).result("User Invalid");
             return;
         }
+
+        messageService.createMessage(message);
+        ctx.json(message).status(200);
     }
 
     // private void getAllMessagesHandler(Context ctx) {
     //     List<Message> messages = messageService.getAllMessages();
     // }
+
+    private void getMessagesByAccountIdHandler(Context ctx) throws JsonProcessingException {
+        int accountId = Integer.parseInt(ctx.pathParam("account_id"));
+    
+        List<Message> messages = messageService.getMessagesByAccountId(accountId);
+        if (messages != null) {
+            ctx.json(messages).status(200);
+        } else {
+            ctx.status(200).result("No messages found for the specified account ID");
+        }
+    }
+    private void updateMessageHandler(Context ctx) {
+        int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+        Message updatedMessage = ctx.bodyAsClass(Message.class);
+        
+        if(updatedMessage.getMessage_text().isEmpty() || updatedMessage.getMessage_text().length() > 255){
+
+        }
+        Message exists = messageService.getMessageById(messageId);
+        if(exists == null){
+            ctx.status(400);
+            return;
+        }
+        exists.setMessage_text(updatedMessage.getMessage_text());
+        Message updated = messageService.updateMessage(messageId, exists);
+        if (updated == null) {
+            ctx.status(400); // Bad Request
+        } else {
+            ctx.json(updated).status(200); // Success
+        }
+    }
+    
+    //     ObjectMapper mapper = new ObjectMapper();
+    //     Flight flight = mapper.readValue(ctx.body(), Flight.class);
+    //     int flight_id = Integer.parseInt(ctx.pathParam("flight_id"));
+    //     Flight updatedFlight = flightService.updateFlight(flight_id, flight);
+    //     System.out.println(updatedFlight);
+    //     if(updatedFlight == null){
+    //         ctx.status(400);
+    //     }else{
+    //         ctx.json(mapper.writeValueAsString(updatedFlight));
+    //     }
+    
 }

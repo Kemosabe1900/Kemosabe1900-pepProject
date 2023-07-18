@@ -14,7 +14,7 @@ public interface MessageDAOInterface {
 
     List<Message> getMessagesByAccountId(int posted_by);
 
-    void updateMessage(Message message, int message_id);
+    void updateMessage(int message_id, Message message);
 
     boolean deleteMessage(int message_id);
 }

@@ -15,7 +15,7 @@ public class MessageDAO implements MessageDAOInterface {
 
     public void createMessage(Message message) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "INSERT INTO messages(posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO message(posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, message.getPosted_by());
             ps.setString(2, message.getMessage_text());
@@ -29,7 +29,7 @@ public class MessageDAO implements MessageDAOInterface {
     public List<Message> getAllMessages() {
         List<Message> messages = new ArrayList<>();
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "SELECT * FROM messages";
+            String sql = "SELECT * FROM message";
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -47,7 +47,7 @@ public class MessageDAO implements MessageDAOInterface {
 
     public Message getMessageById(int message_id) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "SELECT * FROM messages WHERE message_id = ?";
+            String sql = "SELECT * FROM message WHERE message_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, message_id);
             ResultSet rs = ps.executeQuery();
@@ -66,7 +66,7 @@ public class MessageDAO implements MessageDAOInterface {
     public List<Message> getMessagesByAccountId(int posted_by) {
         List<Message> messages = new ArrayList<>();
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "SELECT * FROM messages WHERE posted_by=? ";
+            String sql = "SELECT * FROM message WHERE posted_by=? ";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, posted_by);
             ResultSet rs = ps.executeQuery();
@@ -81,11 +81,12 @@ public class MessageDAO implements MessageDAOInterface {
         }
         return messages;
     }
+    
 
     public Message insertMessage(Message message) {
         try (Connection connection = ConnectionUtil.getConnection()) {
             // insert into table "messages" with values of the object passed as parameter
-            String sql = "INSERT INTO messages(posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO message(posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, message.getPosted_by());
             ps.setString(2, message.getMessage_text());
@@ -98,23 +99,26 @@ public class MessageDAO implements MessageDAOInterface {
         return null;
     }
 
-    public void updateMessage(Message message, int message_id) {
+    public void updateMessage(int message_id, Message message) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "UPDATE message SET message_text = ?, time_posted_epoch = ?, WHERE message_id =  ?";
+            String sql = "UPDATE message SET message_text = ?, time_posted_epoch = ?, WHERE message_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
+
             ps.setString(1, message.getMessage_text());
             ps.setLong(2, message.getTime_posted_epoch());
-            ps.setInt(3, message.getMessage_id());
+            ps.setInt(3, message_id);
 
             ps.executeUpdate();
+            
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+       
     }
 
     public boolean deleteMessage(int message_id) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "DELETE FROM Message WHERE message_id = ?";
+            String sql = "DELETE FROM message WHERE message_id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, message_id);
             return preparedStatement.executeUpdate() > 0;
