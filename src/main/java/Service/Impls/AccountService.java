@@ -12,8 +12,16 @@ public class AccountService implements AccountServiceInterface {
         this.accountDAO = new AccountDAO();
     }
 
-    public void createAccount(Account account) {
-        accountDAO.createAccount(account);
+    public Account createAccount(Account account) {
+        Account existingAccount = accountDAO.getAccountByUsername(account.getUsername());
+        if(existingAccount != null){
+            return null;
+        }
+        return accountDAO.insertAccount(account);
+    }
+
+    public Account getAccountByUsername(String username) {
+        return accountDAO.getAccountByUsername(username);
     }
 
     public Account getAccountById(int account_id) {
@@ -32,7 +40,6 @@ public class AccountService implements AccountServiceInterface {
         return accountDAO.deleteAccount(account_id);
     }
 
-    @Override
     public Account loginAccount(String username, String password) {
         Account account = accountDAO.getAccountByUsername(username);
         if (account != null && account.getPassword().equals(password)) {
@@ -40,4 +47,6 @@ public class AccountService implements AccountServiceInterface {
         }
         return null;
     }
+
+   
 }

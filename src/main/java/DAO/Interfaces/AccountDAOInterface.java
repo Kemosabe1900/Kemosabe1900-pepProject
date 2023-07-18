@@ -4,7 +4,7 @@ import Model.Account;
 
 public interface AccountDAOInterface {
 
-    void createAccount(Account account);
+    Account createAccount(Account account);
 
     Account getAccountById(int account_id);
 

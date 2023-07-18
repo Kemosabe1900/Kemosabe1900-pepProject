@@ -3,9 +3,11 @@ package Service.Interfaces;
 import Model.Account;
 
 public interface AccountServiceInterface {
-    void createAccount(Account account);
+    Account createAccount(Account account);
 
     Account loginAccount(String username, String password);
+
+    Account getAccountByUsername(String username);
 
     Account getAccountById(int account_id);
 

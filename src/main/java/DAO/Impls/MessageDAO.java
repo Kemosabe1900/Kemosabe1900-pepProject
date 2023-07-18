@@ -100,7 +100,7 @@ public class MessageDAO implements MessageDAOInterface {
 
     public void updateMessage(Message message, int message_id) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "UPDATE message SET message_test = ?, time_posted_epoch = ?, WHERE message_id =  ?";
+            String sql = "UPDATE message SET message_text = ?, time_posted_epoch = ?, WHERE message_id =  ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, message.getMessage_text());
             ps.setLong(2, message.getTime_posted_epoch());

@@ -12,16 +12,26 @@ import DAO.Interfaces.AccountDAOInterface;
 
 public class AccountDAO implements AccountDAOInterface {
 
-    public void createAccount(Account account) {
-        try (Connection connection = ConnectionUtil.getConnection()) {
+    public Account createAccount(Account account) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
             String sql = "INSERT INTO account(username, password) VALUES(?, ?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, account.getUsername());
             ps.setString(2, account.getPassword());
             ps.executeUpdate();
+
+            ResultSet getGeneratedKeys = ps.getGeneratedKeys();
+            if(getGeneratedKeys.next()){
+                int accId = getGeneratedKeys.getInt(1);
+                account.setAccount_id(accId);
+                return account;
+            }
+            ps.close();
         } catch (SQLException e) {
             System.out.println(e.getMessage()); // handles exceptions related to database
         }
+        return null;
     }
 
     // find account by acount_id method
@@ -45,7 +55,7 @@ public class AccountDAO implements AccountDAOInterface {
 
     public Account getAccountByUsername(String username) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "SELECT * FROM accounts WHERE username = ?";
+            String sql = "SELECT * FROM account WHERE username = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();

@@ -32,10 +32,10 @@ public class SocialMediaController {
 
     public Javalin startAPI() {
         Javalin app = Javalin.create();
-        app.post("/register", this::registerHandler);
+        app.post("/register", this::createAccountHandler);
         app.post("/login", this::loginHandler);
         app.post("/message", this::createMessageHandler);
-        app.get("/messages", this::getAllMessagesHandler);
+        // app.get("/messages", this::getAllMessagesHandler);
 
         return app;
     }
@@ -48,11 +48,25 @@ public class SocialMediaController {
     // context.json("sample text");
     // }
 
-    private void registerHandler(Context ctx) throws JsonProcessingException {
+    private void createAccountHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
-        accountService.createAccount(account);
 
+        Account existingAccount = accountService.getAccountByUsername(account.getUsername());
+        if (existingAccount != null) { 
+            ctx.status(400);
+        }else if (account.getUsername().isEmpty() || account.getPassword().length() < 4) {
+                ctx.status(400); // Invalid username or password
+        } else {
+            Account createdAccount = accountService.createAccount(account);
+            if (createdAccount != null) {
+                ctx.json(createdAccount);
+            } else {
+                ctx.status(400); // Error creating account
+            }
+        }
+            
+          
     }
 
     private void loginHandler(Context ctx) throws JsonProcessingException {
@@ -69,16 +83,18 @@ public class SocialMediaController {
     private void createMessageHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
-        if (message.message_text.isEmpty() && message.message_text.length() > 255) {
-            // messageService.createMessage(message);
-            // ctx.json(mapper.writeValueAsString(message));
-            ctx.status(200);
-        } else {
+        if (message.getMessage_text().isEmpty() && message.getMessage_text().length() > 255) {
             ctx.status(400);
+            return;
+        }  
+        Account poster = accountService.getAccountById(message.getPosted_by());
+        if(poster == null){
+            ctx.status(400);
+            return;
         }
     }
 
-    private void getAllMessagesHandler(Context ctx) {
-        List<Message> messages = messageService.getAllMessages();
-    }
+    // private void getAllMessagesHandler(Context ctx) {
+    //     List<Message> messages = messageService.getAllMessages();
+    // }
 }
