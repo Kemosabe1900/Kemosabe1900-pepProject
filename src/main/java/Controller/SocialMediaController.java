@@ -72,17 +72,8 @@ public class SocialMediaController {
     private void createMessageHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
-
-        // if (message.getMessage_text().isEmpty()) {
-        // ctx.status(400);
-        // return;
-        // }
-        // if (message.getMessage_text().length() > 254) {
-        // ctx.status(400);
-        // return;
-        // }
-
         Account poster = accountService.getAccountById(message.getPosted_by());
+
         if (poster == null) {
             ctx.status(400);
             return;
@@ -115,21 +106,7 @@ public class SocialMediaController {
     public void updateMessageHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
-
         int messageId = Integer.parseInt(ctx.pathParam("message_id"));
-
-        // if (message.getMessage_text().isEmpty() || message.getMessage_text().length()
-        // > 254) {
-        // ctx.status(400);
-        // return;
-        // }
-
-        // Message exists = messageService.getMessageById(messageId);
-        // if (exists == null) {
-        // ctx.status(400);
-        // return;
-        // }
-        // exists.setMessage_text(message.getMessage_text());
 
         Message updatedMessage = messageService.updateMessage(messageId, message);
 
