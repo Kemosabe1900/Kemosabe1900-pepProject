@@ -47,23 +47,6 @@ public class SocialMediaController {
     private void createAccountHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
-
-        if (account.getUsername().isEmpty()) {
-            ctx.status(400); // Bad Request
-            return;
-        }
-
-        if (account.getPassword().length() < 4) {
-            ctx.status(400); // Bad Request
-            return;
-        }
-
-        Account existingAccount = accountService.getAccountByUsername(account.getUsername());
-        if (existingAccount != null) {
-            ctx.status(400); // Bad Request
-            return;
-        }
-        // Create the account
         Account createdAccount = accountService.createAccount(account);
 
         if (createdAccount != null) {
@@ -90,14 +73,14 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
 
-        if (message.getMessage_text().isEmpty()) {
-            ctx.status(400);
-            return;
-        }
-        if (message.getMessage_text().length() > 254) {
-            ctx.status(400);
-            return;
-        }
+        // if (message.getMessage_text().isEmpty()) {
+        // ctx.status(400);
+        // return;
+        // }
+        // if (message.getMessage_text().length() > 254) {
+        // ctx.status(400);
+        // return;
+        // }
 
         Account poster = accountService.getAccountById(message.getPosted_by());
         if (poster == null) {
@@ -135,19 +118,20 @@ public class SocialMediaController {
 
         int messageId = Integer.parseInt(ctx.pathParam("message_id"));
 
-        if (message.getMessage_text().isEmpty() || message.getMessage_text().length() > 254) {
-            ctx.status(400);
-            return;
-        }
+        // if (message.getMessage_text().isEmpty() || message.getMessage_text().length()
+        // > 254) {
+        // ctx.status(400);
+        // return;
+        // }
 
-        Message exists = messageService.getMessageById(messageId);
-        if (exists == null) {
-            ctx.status(400);
-            return;
-        }
-        exists.setMessage_text(message.getMessage_text());
+        // Message exists = messageService.getMessageById(messageId);
+        // if (exists == null) {
+        // ctx.status(400);
+        // return;
+        // }
+        // exists.setMessage_text(message.getMessage_text());
 
-        Message updatedMessage = messageService.updateMessage(messageId, exists);
+        Message updatedMessage = messageService.updateMessage(messageId, message);
 
         if (updatedMessage != null) {
             ctx.json(updatedMessage).status(200); // Success

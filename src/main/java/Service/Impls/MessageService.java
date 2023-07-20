@@ -14,6 +14,12 @@ public class MessageService implements MessageServiceInterface {
     }
 
     public Message createMessage(Message message) {
+        if (message.getMessage_text().isEmpty()) {
+            return null;
+        }
+        if (message.getMessage_text().length() > 254) {
+            return null;
+        }
         return messageDAO.createMessage(message);
     }
 
@@ -29,23 +35,24 @@ public class MessageService implements MessageServiceInterface {
         return messageDAO.getMessagesByAccountId(posted_by);
     }
 
-
     public Message updateMessage(int message_id, Message message) {
+        if (message.getMessage_text().isEmpty() || message.getMessage_text().length() > 254) {
+            return null;
+        }
+
         Message exists = messageDAO.getMessageById(message_id);
 
         if (exists != null) {
-            messageDAO.updateMessage(message_id, message);
-            Message updated = messageDAO.getMessageById(message_id);
-            return updated;
+            exists.setMessage_text(message.getMessage_text());
+            messageDAO.updateMessage(message_id, exists);
+            return exists;
         }else{
             return null;
         }
     }
 
-
     public boolean deleteMessage(int message_id) {
         return messageDAO.deleteMessage(message_id);
     }
 
-   
 }

@@ -14,6 +14,16 @@ public class AccountService implements AccountServiceInterface {
     }
 
     public Account createAccount(Account account) {
+        if (account.getUsername().isEmpty()) {
+            return null;
+        }
+        if (account.getPassword().length() < 4) {
+            return null;
+        }
+        Account existingAccount = accountDAO.getAccountByUsername(account.getUsername());
+        if (existingAccount != null) {
+            return null;
+        }
 
         return accountDAO.createAccount(account);
     }
