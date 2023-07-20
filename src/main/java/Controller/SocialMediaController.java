@@ -112,7 +112,7 @@ public class SocialMediaController {
         Message updatedMessage = messageService.updateMessage(messageId, message);
 
         if (updatedMessage != null) {
-            ctx.json(updatedMessage).status(200); // Success
+            ctx.json(updatedMessage).status(200);
         } else {
             ctx.status(400);
         }
