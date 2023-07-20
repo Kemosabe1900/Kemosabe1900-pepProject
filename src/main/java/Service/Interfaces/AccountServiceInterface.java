@@ -11,7 +11,7 @@ public interface AccountServiceInterface {
 
     Account getAccountById(int account_id);
 
-    Account insertAccount(Account account);
+    // Account insertAccount(Account account);
 
     void updateAccount(Account account);
 

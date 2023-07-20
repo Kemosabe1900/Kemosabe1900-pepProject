@@ -65,7 +65,8 @@ public class MessageDAO implements MessageDAOInterface {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Message message = new Message(rs.getInt("posted_by"),
+                Message message = new Message(rs.getInt("message_id"),
+                        rs.getInt("posted_by"),
                         rs.getString("message_text"),
                         rs.getLong("time_posted_epoch"));
                 return message;

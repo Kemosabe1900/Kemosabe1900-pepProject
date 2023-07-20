@@ -10,7 +10,7 @@ public interface AccountDAOInterface {
 
     Account getAccountByUsername(String username);
 
-    Account insertAccount(Account account);
+    // Account insertAccount(Account account);
 
     void updateAccount(Account account);
 

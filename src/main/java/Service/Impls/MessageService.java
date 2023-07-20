@@ -7,7 +7,7 @@ import Model.Message;
 import java.util.List;
 
 public class MessageService implements MessageServiceInterface {
-    private final MessageDAO messageDAO;
+    MessageDAO messageDAO;
 
     public MessageService() {
         this.messageDAO = new MessageDAO();

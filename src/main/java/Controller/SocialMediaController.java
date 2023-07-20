@@ -36,7 +36,7 @@ public class SocialMediaController {
         app.post("/login", this::loginHandler);
         app.post("/messages", this::createMessageHandler);
         app.get("/messages", this::getAllMessagesHandler);
-        // app.get("/messages/:message_id", this::getMessageByMessageIdHandler);
+        app.get("/messages/{message_id}", this::getMessageByMessageIdHandler);
         app.patch("/messages/{message_id}", this::updateMessageHandler);
         app.get("/accounts/{account_id}/messages", this::getMessagesByAccountIdHandler);
 
@@ -45,22 +45,26 @@ public class SocialMediaController {
 
     private void getMessagesByAccountIdHandler(Context ctx) throws JsonProcessingException {
         int accountId = Integer.parseInt(ctx.pathParam("account_id"));
-
         List<Message> messages = messageService.getMessagesByAccountId(accountId);
 
-        ctx.json(messages).status(200);
+        if (messages != null) {
+            ctx.json(messages);
+        } else {
+            ctx.status(200);
+        }
     }
-    // private void getMessageByMessageIdHandler(Context ctx) {
-    // int messageId = Integer.parseInt(ctx.pathParam("message_id"));
 
-    // Message message = messageService.getMessageById(messageId);
+    private void getMessageByMessageIdHandler(Context ctx) {
 
-    // if (message != null) {
-    // ctx.json(message).status(200);
-    // } else {
-    // ctx.status(200).json("");
-    // }
-    // }
+        int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+        Message message = messageService.getMessageById(messageId);
+
+        if (message != null) {
+            ctx.json(message);
+        } else {
+            ctx.status(200);
+        }
+    }
 
     public void updateMessageHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -68,21 +72,21 @@ public class SocialMediaController {
 
         int messageId = Integer.parseInt(ctx.pathParam("message_id"));
 
-        if (message.getMessage_text().isEmpty()) {
+        if (message.getMessage_text().isEmpty() || message.getMessage_text().length() > 255) {
             ctx.status(400);
-            // return;
-        }
-        if (message.getMessage_text().length() > 255) {
-            ctx.status(400);
-        }
-        Message exists = messageService.getMessageById(messageId);
-        System.out.println(exists);
-        if (exists == null) {
-            ctx.status(400);
+            return;
         }
 
-        Message updatedMessage = messageService.updateMessage(messageId, message);
-        System.out.println(updatedMessage);
+        Message exists = messageService.getMessageById(messageId);
+        // System.out.println(exists);
+        if (exists == null) {
+            ctx.status(400);
+            return;
+        }
+        exists.setMessage_text(message.getMessage_text());
+
+        Message updatedMessage = messageService.updateMessage(messageId, exists);
+        // System.out.println(updatedMessage);
 
         if (updatedMessage != null) {
             ctx.json(updatedMessage).status(200); // Success
@@ -100,15 +104,15 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
 
-        if (account.getUsername().isEmpty()) {
+        if (account.getUsername().isEmpty() && account.getPassword().length() < 4) {
             ctx.status(400); // Bad Request
             return;
         }
 
-        if (account.getPassword().length() < 4) {
-            ctx.status(400); // Bad Request
-            return;
-        }
+        // if (account.getPassword().length() < 4) {
+        // ctx.status(400); // Bad Request
+        // return;
+        // }
         // already exists
         Account existingAccount = accountService.getAccountByUsername(account.getUsername());
         if (existingAccount != null) {
@@ -120,7 +124,9 @@ public class SocialMediaController {
 
         // Check if the account creation was successful
         if (createdAccount != null) {
-            ctx.json(createdAccount).status(200); // Success
+            // ctx.json(createdAccount).status(200); // Success
+            ctx.json(mapper.writeValueAsString(createdAccount));
+
         } else {
             ctx.status(400); // Bad Request
         }
@@ -140,6 +146,7 @@ public class SocialMediaController {
         if (message.getMessage_text().length() > 255) {
             ctx.status(400);
         }
+
 
         Account poster = accountService.getAccountById(message.getPosted_by());
         if (poster == null) {

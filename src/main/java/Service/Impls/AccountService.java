@@ -6,18 +6,29 @@ import DAO.Impls.AccountDAO;
 import Model.Account;
 
 public class AccountService implements AccountServiceInterface {
-    private final AccountDAO accountDAO;
+
+    AccountDAO accountDAO;
 
     public AccountService() {
-        this.accountDAO = new AccountDAO();
+        accountDAO = new AccountDAO();
     }
 
     public Account createAccount(Account account) {
-        Account existingAccount = accountDAO.getAccountByUsername(account.getUsername());
-        if(existingAccount != null){
-            return null;
-        }
-        return accountDAO.insertAccount(account);
+        // if (account.getUsername().isEmpty()) {
+        // // ctx.status(400); // Bad Request
+        // return null;
+        // }
+
+        // if (account.getPassword().length() < 4) {
+        // // ctx.status(400); // Bad Request
+        // return null;
+        // }
+        // Account existingAccount =
+        // accountDAO.getAccountByUsername(account.getUsername());
+        // if (existingAccount != null) {
+        // return null;
+        // }
+        return accountDAO.createAccount(account);
     }
 
     public Account getAccountByUsername(String username) {
@@ -28,9 +39,9 @@ public class AccountService implements AccountServiceInterface {
         return accountDAO.getAccountById(account_id);
     }
 
-    public Account insertAccount(Account account) {
-        return accountDAO.insertAccount(account);
-    }
+    // public Account insertAccount(Account account) {
+    // return accountDAO.insertAccount(account);
+    // }
 
     public void updateAccount(Account account) {
         accountDAO.updateAccount(account);

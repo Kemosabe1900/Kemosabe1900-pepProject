@@ -9,6 +9,7 @@ import DAO.Interfaces.AccountDAOInterface;
 
 public class AccountDAO implements AccountDAOInterface {
 
+
     public Account createAccount(Account account) {
 
         try (Connection connection = ConnectionUtil.getConnection()) {
@@ -21,8 +22,11 @@ public class AccountDAO implements AccountDAOInterface {
             ResultSet pkResultSet = ps.getGeneratedKeys();
             if (pkResultSet.next()) {
                 int accId = pkResultSet.getInt(1);
-                account.setAccount_id(accId);
-                return account;
+                return new Account(accId, account.getUsername(), account.getPassword());
+                // account.setAccount_id(accId);
+                // return account;
+            } else {
+                return null;
             }
 
         } catch (SQLException e) {
@@ -68,24 +72,26 @@ public class AccountDAO implements AccountDAOInterface {
         return null;
     }
 
-    // method to inset account into database
-    public Account insertAccount(Account account) {
-        try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "INSERT INTO account(username,password) VALUES(?, ?)";
-            PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            ps.setString(1, account.getUsername());
-            ps.setString(2, account.getPassword());
-            ps.executeUpdate();
-            ResultSet pkeyResultSet = ps.getGeneratedKeys();
-            if (pkeyResultSet.next()) {
-                int getAccountId = pkeyResultSet.getInt(1);
-                return new Account(getAccountId, account.getUsername(), account.getPassword());
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage()); // handles exceptions related to database
-        }
-        return null;
-    }
+    // // method to inset account into database
+    // public Account insertAccount(Account account) {
+    // try (Connection connection = ConnectionUtil.getConnection()) {
+    // String sql = "INSERT INTO account(username,password) VALUES(?, ?)";
+    // PreparedStatement ps = connection.prepareStatement(sql,
+    // PreparedStatement.RETURN_GENERATED_KEYS);
+    // ps.setString(1, account.getUsername());
+    // ps.setString(2, account.getPassword());
+    // ps.executeUpdate();
+    // ResultSet pkeyResultSet = ps.getGeneratedKeys();
+    // if (pkeyResultSet.next()) {
+    // int getAccountId = pkeyResultSet.getInt(1);
+    // return new Account(getAccountId, account.getUsername(),
+    // account.getPassword());
+    // }
+    // } catch (SQLException e) {
+    // System.out.println(e.getMessage()); // handles exceptions related to database
+    // }
+    // return null;
+    // }
 
     public void updateAccount(Account account) {
         try (Connection connection = ConnectionUtil.getConnection()) {
