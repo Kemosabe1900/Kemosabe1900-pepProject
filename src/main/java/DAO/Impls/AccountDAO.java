@@ -11,8 +11,8 @@ public class AccountDAO implements AccountDAOInterface {
 
 
     public Account createAccount(Account account) {
-
-        try (Connection connection = ConnectionUtil.getConnection()) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
             String sql = "INSERT INTO account(username, password) VALUES(?, ?)";
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, account.getUsername());
@@ -23,21 +23,19 @@ public class AccountDAO implements AccountDAOInterface {
             if (pkResultSet.next()) {
                 int accId = pkResultSet.getInt(1);
                 return new Account(accId, account.getUsername(), account.getPassword());
-                // account.setAccount_id(accId);
-                // return account;
             } else {
                 return null;
             }
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage()); // handles exceptions related to database
+            System.out.println(e.getMessage());
         }
         return null;
     }
 
-    // find account by acount_id method
     public Account getAccountById(int account_id) {
-        try (Connection connection = ConnectionUtil.getConnection()) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
             String sql = "SELECT * FROM account WHERE account_id=? ";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, account_id);
@@ -55,7 +53,8 @@ public class AccountDAO implements AccountDAOInterface {
     }
 
     public Account getAccountByUsername(String username) {
-        try (Connection connection = ConnectionUtil.getConnection()) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
             String sql = "SELECT * FROM account WHERE username = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, username);
@@ -72,29 +71,9 @@ public class AccountDAO implements AccountDAOInterface {
         return null;
     }
 
-    // // method to inset account into database
-    // public Account insertAccount(Account account) {
-    // try (Connection connection = ConnectionUtil.getConnection()) {
-    // String sql = "INSERT INTO account(username,password) VALUES(?, ?)";
-    // PreparedStatement ps = connection.prepareStatement(sql,
-    // PreparedStatement.RETURN_GENERATED_KEYS);
-    // ps.setString(1, account.getUsername());
-    // ps.setString(2, account.getPassword());
-    // ps.executeUpdate();
-    // ResultSet pkeyResultSet = ps.getGeneratedKeys();
-    // if (pkeyResultSet.next()) {
-    // int getAccountId = pkeyResultSet.getInt(1);
-    // return new Account(getAccountId, account.getUsername(),
-    // account.getPassword());
-    // }
-    // } catch (SQLException e) {
-    // System.out.println(e.getMessage()); // handles exceptions related to database
-    // }
-    // return null;
-    // }
-
     public void updateAccount(Account account) {
-        try (Connection connection = ConnectionUtil.getConnection()) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
             String sql = "UPDATE account SET username = ?, password = ? WHERE accound_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, account.getUsername());
@@ -105,15 +84,16 @@ public class AccountDAO implements AccountDAOInterface {
     }
 
     public Account deleteAccount(int account_id) {
-        try (Connection connection = ConnectionUtil.getConnection()) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
             String sql = "DELETE FROM account where account_id=? ";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, account_id);
             int affectedRows = ps.executeUpdate(sql);
             if (affectedRows > 0)
-                return getAccountById(account_id);// returns the deleted object
+                return getAccountById(account_id);
         } catch (SQLException e) {
-            System.out.println(e.getMessage()); // handles exceptions related to database
+            System.out.println(e.getMessage());
         }
         return null;
     }

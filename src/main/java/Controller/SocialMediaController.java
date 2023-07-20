@@ -39,19 +39,82 @@ public class SocialMediaController {
         app.get("/messages/{message_id}", this::getMessageByMessageIdHandler);
         app.patch("/messages/{message_id}", this::updateMessageHandler);
         app.get("/accounts/{account_id}/messages", this::getMessagesByAccountIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMessageByMessageIdHandler);
 
         return app;
     }
 
-    private void getMessagesByAccountIdHandler(Context ctx) throws JsonProcessingException {
-        int accountId = Integer.parseInt(ctx.pathParam("account_id"));
-        List<Message> messages = messageService.getMessagesByAccountId(accountId);
+    private void createAccountHandler(Context ctx) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Account account = mapper.readValue(ctx.body(), Account.class);
 
-        if (messages != null) {
-            ctx.json(messages);
-        } else {
-            ctx.status(200);
+        if (account.getUsername().isEmpty()) {
+            ctx.status(400); // Bad Request
+            return;
         }
+
+        if (account.getPassword().length() < 4) {
+            ctx.status(400); // Bad Request
+            return;
+        }
+
+        Account existingAccount = accountService.getAccountByUsername(account.getUsername());
+        if (existingAccount != null) {
+            ctx.status(400); // Bad Request
+            return;
+        }
+        // Create the account
+        Account createdAccount = accountService.createAccount(account);
+
+        if (createdAccount != null) {
+            ctx.json(mapper.writeValueAsString(createdAccount));
+
+        } else {
+            ctx.status(400); // Bad Request
+        }
+
+    }
+
+    private void loginHandler(Context ctx) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Account account = mapper.readValue(ctx.body(), Account.class);
+        Account loggedIn = accountService.loginAccount(account.getUsername(), account.getPassword());
+        if (loggedIn != null) {
+            ctx.json(mapper.writeValueAsString(loggedIn));
+        } else {
+            ctx.status(401);
+        }
+    }
+
+    private void createMessageHandler(Context ctx) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(ctx.body(), Message.class);
+
+        if (message.getMessage_text().isEmpty()) {
+            ctx.status(400);
+            return;
+        }
+        if (message.getMessage_text().length() > 254) {
+            ctx.status(400);
+            return;
+        }
+
+        Account poster = accountService.getAccountById(message.getPosted_by());
+        if (poster == null) {
+            ctx.status(400);
+            return;
+        }
+        Message newMes = messageService.createMessage(message);
+        if (newMes == null) {
+            ctx.status(400);
+            return;
+        } else {
+            ctx.json(newMes).status(200);
+        }
+    }
+
+    private void getAllMessagesHandler(Context ctx) {
+        ctx.json(messageService.getAllMessages());
     }
 
     private void getMessageByMessageIdHandler(Context ctx) {
@@ -72,13 +135,12 @@ public class SocialMediaController {
 
         int messageId = Integer.parseInt(ctx.pathParam("message_id"));
 
-        if (message.getMessage_text().isEmpty() || message.getMessage_text().length() > 255) {
+        if (message.getMessage_text().isEmpty() || message.getMessage_text().length() > 254) {
             ctx.status(400);
             return;
         }
 
         Message exists = messageService.getMessageById(messageId);
-        // System.out.println(exists);
         if (exists == null) {
             ctx.status(400);
             return;
@@ -86,7 +148,6 @@ public class SocialMediaController {
         exists.setMessage_text(message.getMessage_text());
 
         Message updatedMessage = messageService.updateMessage(messageId, exists);
-        // System.out.println(updatedMessage);
 
         if (updatedMessage != null) {
             ctx.json(updatedMessage).status(200); // Success
@@ -96,80 +157,31 @@ public class SocialMediaController {
 
     }
 
-    private void getAllMessagesHandler(Context ctx) {
-        ctx.json(messageService.getAllMessages());
-    }
+    private void getMessagesByAccountIdHandler(Context ctx) throws JsonProcessingException {
+        int accountId = Integer.parseInt(ctx.pathParam("account_id"));
+        List<Message> messages = messageService.getMessagesByAccountId(accountId);
 
-    private void createAccountHandler(Context ctx) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        Account account = mapper.readValue(ctx.body(), Account.class);
-
-        if (account.getUsername().isEmpty() && account.getPassword().length() < 4) {
-            ctx.status(400); // Bad Request
-            return;
-        }
-
-        // if (account.getPassword().length() < 4) {
-        // ctx.status(400); // Bad Request
-        // return;
-        // }
-        // already exists
-        Account existingAccount = accountService.getAccountByUsername(account.getUsername());
-        if (existingAccount != null) {
-            ctx.status(400); // Bad Request
-            return;
-        }
-        // Create the account
-        Account createdAccount = accountService.createAccount(account);
-
-        // Check if the account creation was successful
-        if (createdAccount != null) {
-            // ctx.json(createdAccount).status(200); // Success
-            ctx.json(mapper.writeValueAsString(createdAccount));
-
+        if (messages != null) {
+            ctx.json(messages);
         } else {
-            ctx.status(400); // Bad Request
-        }
-
-    }
-
-
-
-    private void createMessageHandler(Context ctx) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        Message message = mapper.readValue(ctx.body(), Message.class);
-
-        if (message.getMessage_text().isEmpty()) {
-            ctx.status(400);
-            return;
-        }
-        if (message.getMessage_text().length() > 255) {
-            ctx.status(400);
-        }
-
-
-        Account poster = accountService.getAccountById(message.getPosted_by());
-        if (poster == null) {
-            ctx.status(400);
-            return;
-        }
-        Message newMes = messageService.createMessage(message);
-        if (newMes == null) {
-            ctx.status(400);
-        } else {
-            // ctx.json(mapper.writeValueAsString(newMes));
-            ctx.json(newMes).status(200);
+            ctx.status(200);
         }
     }
 
-    private void loginHandler(Context ctx) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        Account account = mapper.readValue(ctx.body(), Account.class);
-        Account loggedIn = accountService.loginAccount(account.getUsername(), account.getPassword());
-        if (loggedIn != null) {
-            ctx.json(mapper.writeValueAsString(loggedIn));
+    private void deleteMessageByMessageIdHandler(Context ctx) {
+        int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+        Message toDelete = messageService.getMessageById(messageId);
+
+        if (toDelete != null) {
+            Boolean isDeleted = messageService.deleteMessage(messageId);
+
+            if (isDeleted) {
+                ctx.json(toDelete);
+            } else {
+                ctx.status(200);
+            }
         } else {
-            ctx.status(401);
+            ctx.status(200);
         }
     }
 }

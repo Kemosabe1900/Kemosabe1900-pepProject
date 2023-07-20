@@ -42,6 +42,7 @@ public class MessageService implements MessageServiceInterface {
         }
     }
 
+
     public boolean deleteMessage(int message_id) {
         return messageDAO.deleteMessage(message_id);
     }
