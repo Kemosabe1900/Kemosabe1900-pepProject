@@ -47,7 +47,7 @@ public class AccountDAO implements AccountDAOInterface {
                 return account;
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage()); // handles exceptions related to database
+            System.out.println(e.getMessage());
         }
         return null;
     }
@@ -79,7 +79,7 @@ public class AccountDAO implements AccountDAOInterface {
             ps.setString(1, account.getUsername());
             ps.setString(2, account.getPassword());
         } catch (SQLException e) {
-            System.out.println(e.getMessage());// handles exceptions related to database
+            System.out.println(e.getMessage());
         }
     }
 
