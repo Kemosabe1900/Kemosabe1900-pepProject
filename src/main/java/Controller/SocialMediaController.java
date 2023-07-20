@@ -53,7 +53,7 @@ public class SocialMediaController {
             ctx.json(mapper.writeValueAsString(createdAccount));
 
         } else {
-            ctx.status(400); // Bad Request
+            ctx.status(400);
         }
 
     }
