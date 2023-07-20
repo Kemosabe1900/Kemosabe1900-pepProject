@@ -6,24 +6,36 @@ import Model.Message;
 import Util.ConnectionUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class MessageDAO implements MessageDAOInterface {
 
-    public void createMessage(Message message) {
+    public Message createMessage(Message message) {
+
         try (Connection connection = ConnectionUtil.getConnection()) {
             String sql = "INSERT INTO message(posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
             ps.setInt(1, message.getPosted_by());
             ps.setString(2, message.getMessage_text());
             ps.setLong(3, message.getTime_posted_epoch());
             ps.executeUpdate();
+
+            ResultSet pkResultSet = ps.getGeneratedKeys();
+            if (pkResultSet.next()) {
+                int messageId = pkResultSet.getInt(1);
+                message.setMessage_id(messageId);
+                // return new Message(messageId, message.getPosted_by(),
+                // message.getMessage_text(),
+                // message.getTime_posted_epoch());
+                // message.setMessage_id(messageId);
+                return message;
+            }
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+        return null;
     }
 
     public List<Message> getAllMessages() {
@@ -51,10 +63,11 @@ public class MessageDAO implements MessageDAOInterface {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, message_id);
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 Message message = new Message(rs.getInt("posted_by"),
                         rs.getString("message_text"),
-                        rs.getLong("timestamp"));
+                        rs.getLong("time_posted_epoch"));
                 return message;
             }
         } catch (SQLException e) {
@@ -66,7 +79,7 @@ public class MessageDAO implements MessageDAOInterface {
     public List<Message> getMessagesByAccountId(int posted_by) {
         List<Message> messages = new ArrayList<>();
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "SELECT * FROM message WHERE posted_by=? ";
+            String sql = "SELECT * FROM message WHERE posted_by=?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, posted_by);
             ResultSet rs = ps.executeQuery();
@@ -83,6 +96,7 @@ public class MessageDAO implements MessageDAOInterface {
     }
     
 
+
     public Message insertMessage(Message message) {
         try (Connection connection = ConnectionUtil.getConnection()) {
             // insert into table "messages" with values of the object passed as parameter
@@ -93,6 +107,13 @@ public class MessageDAO implements MessageDAOInterface {
             ps.setLong(3, message.getTime_posted_epoch());
             ps.executeUpdate();
 
+            // get the generated key
+            ResultSet getGeneratedKeys = ps.getGeneratedKeys();
+            if (getGeneratedKeys.next()) {
+                int messageId = getGeneratedKeys.getInt(1);
+                message.setMessage_id(messageId);
+                return message;
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -101,7 +122,7 @@ public class MessageDAO implements MessageDAOInterface {
 
     public void updateMessage(int message_id, Message message) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "UPDATE message SET message_text = ?, time_posted_epoch = ?, WHERE message_id = ?";
+            String sql = "UPDATE message SET message_text = ?, time_posted_epoch = ? WHERE message_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
 
             ps.setString(1, message.getMessage_text());

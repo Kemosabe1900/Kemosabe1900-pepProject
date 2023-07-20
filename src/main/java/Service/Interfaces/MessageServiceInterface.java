@@ -5,7 +5,7 @@ import Model.Message;
 import java.util.List;
 
 public interface MessageServiceInterface {
-    void createMessage(Message message);
+    Message createMessage(Message message);
 
     Message getMessageById(int message_id);
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface MessageDAOInterface {
 
-    void createMessage(Message message);
+    Message createMessage(Message message);
 
     List<Message> getAllMessages();
 

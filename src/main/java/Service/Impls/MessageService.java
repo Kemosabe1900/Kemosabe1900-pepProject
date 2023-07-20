@@ -13,8 +13,8 @@ public class MessageService implements MessageServiceInterface {
         this.messageDAO = new MessageDAO();
     }
 
-    public void createMessage(Message message) {
-        messageDAO.createMessage(message);
+    public Message createMessage(Message message) {
+        return messageDAO.createMessage(message);
     }
 
     public List<Message> getAllMessages() {
@@ -32,7 +32,8 @@ public class MessageService implements MessageServiceInterface {
 
     public Message updateMessage(int message_id, Message message) {
         Message exists = messageDAO.getMessageById(message_id);
-        if(exists != null){
+
+        if (exists != null) {
             messageDAO.updateMessage(message_id, message);
             Message updated = messageDAO.getMessageById(message_id);
             return updated;

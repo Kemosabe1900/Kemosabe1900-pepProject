@@ -3,31 +3,28 @@ package DAO.Impls;
 import Model.Account;
 import Util.ConnectionUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 import DAO.Interfaces.AccountDAOInterface;
 
 public class AccountDAO implements AccountDAOInterface {
 
     public Account createAccount(Account account) {
-        Connection connection = ConnectionUtil.getConnection();
-        try {
+
+        try (Connection connection = ConnectionUtil.getConnection()) {
             String sql = "INSERT INTO account(username, password) VALUES(?, ?)";
-            PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, account.getUsername());
             ps.setString(2, account.getPassword());
             ps.executeUpdate();
 
-            ResultSet getGeneratedKeys = ps.getGeneratedKeys();
-            if(getGeneratedKeys.next()){
-                int accId = getGeneratedKeys.getInt(1);
+            ResultSet pkResultSet = ps.getGeneratedKeys();
+            if (pkResultSet.next()) {
+                int accId = pkResultSet.getInt(1);
                 account.setAccount_id(accId);
                 return account;
             }
-            ps.close();
+
         } catch (SQLException e) {
             System.out.println(e.getMessage()); // handles exceptions related to database
         }
@@ -37,11 +34,11 @@ public class AccountDAO implements AccountDAOInterface {
     // find account by acount_id method
     public Account getAccountById(int account_id) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "SELECT * FROM account WHERE account_id=?";
+            String sql = "SELECT * FROM account WHERE account_id=? ";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, account_id);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 Account account = new Account(rs.getInt("account_id"),
                         rs.getString("username"),
                         rs.getString("password"));
