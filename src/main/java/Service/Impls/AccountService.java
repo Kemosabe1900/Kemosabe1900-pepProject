@@ -14,20 +14,7 @@ public class AccountService implements AccountServiceInterface {
     }
 
     public Account createAccount(Account account) {
-        // if (account.getUsername().isEmpty()) {
-        // // ctx.status(400); // Bad Request
-        // return null;
-        // }
 
-        // if (account.getPassword().length() < 4) {
-        // // ctx.status(400); // Bad Request
-        // return null;
-        // }
-        // Account existingAccount =
-        // accountDAO.getAccountByUsername(account.getUsername());
-        // if (existingAccount != null) {
-        // return null;
-        // }
         return accountDAO.createAccount(account);
     }
 
@@ -38,10 +25,6 @@ public class AccountService implements AccountServiceInterface {
     public Account getAccountById(int account_id) {
         return accountDAO.getAccountById(account_id);
     }
-
-    // public Account insertAccount(Account account) {
-    // return accountDAO.insertAccount(account);
-    // }
 
     public void updateAccount(Account account) {
         accountDAO.updateAccount(account);
