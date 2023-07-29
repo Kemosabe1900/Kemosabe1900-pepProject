@@ -41,7 +41,6 @@ public class SocialMediaController {
         app.get("/accounts/{account_id}/messages", this::getMessagesByAccountIdHandler);
         app.delete("/messages/{message_id}", this::deleteMessageByMessageIdHandler);
 
-
         return app;
     }
 
@@ -51,8 +50,7 @@ public class SocialMediaController {
         Account createdAccount = accountService.createAccount(account);
 
         if (createdAccount != null) {
-            ctx.json(mapper.writeValueAsString(createdAccount));
-
+            ctx.json(mapper.writeValueAsString(createdAccount)).status(200);
         } else {
             ctx.status(400);
         }
@@ -64,7 +62,7 @@ public class SocialMediaController {
         Account account = mapper.readValue(ctx.body(), Account.class);
         Account loggedIn = accountService.loginAccount(account.getUsername(), account.getPassword());
         if (loggedIn != null) {
-            ctx.json(mapper.writeValueAsString(loggedIn));
+            ctx.json(mapper.writeValueAsString(loggedIn)).status(200);
         } else {
             ctx.status(401);
         }
